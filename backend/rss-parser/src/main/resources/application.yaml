@@ -1,0 +1,26 @@
+#启动端口
+server:
+  port: 8080
+#相关配置
+spring:
+  datasource:
+    url: ${DATASOURCE_URL:ENC(u0xiHQE6lIF0AnzXav+T0gQQnopIhcrqT2/DgrM/nc6F63lErqSCqIkvhhPJnK9QhIX4K6gakS7TbYRnmsUtdn6RnLhRz8eg+WkZEyfwLssw0pUbjrb0pw==)}
+    username: ${DATASOURCE_USERNAME:ENC(S8WiRgXKNeg2+PiyYiac8g==)}
+    password: ${DATASOURCE_PWD:ENC(/Cfo9qqC4r8jZ7b4WZ/bQlr5Fpbj8dp5)}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      database: 0
+      host: 198.211.21.49
+      port: 6379
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        hbm2ddl:
+          auto: update
+jasypt:
+  encryptor:
+    algorithm: PBEWithMD5AndDES
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+    password: kina0630 # 加密的密钥(salt)

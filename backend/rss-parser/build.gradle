@@ -9,7 +9,7 @@ group = 'com.backend'
 version = '0.0.1-SNAPSHOT'
 
 java {
-    sourceCompatibility = '20'
+    sourceCompatibility = '19'
 }
 
 configurations {
@@ -26,11 +26,13 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'com.baomidou:mybatis-plus-boot-starter:3.5.3.2'
+    implementation 'com.opencsv:opencsv:5.8' /* 处理csv */
+    implementation 'com.mysql:mysql-connector-j:8.1.0'
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5' /* 利用jasypt对application.yaml进行加密 */
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'com.mysql:mysql-connector-j'
-    runtimeOnly 'org.postgresql:postgresql'
+//    runtimeOnly 'org.mysql:mysql'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
