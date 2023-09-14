@@ -1,11 +1,16 @@
 import Navigation from "./components/Navigation";
-import { ThemeProvider } from "./utils/ThemeContext";
+import { AppProvider } from "./utils/AppContext";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Text } from "react-native-paper";
+import { View } from "react-native";
 
 function App() {
   return (
-    <ThemeProvider>
-      <Navigation />
-    </ThemeProvider>
+    <AppProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Navigation />
+      </GestureHandlerRootView>
+    </AppProvider>
   );
 }
 

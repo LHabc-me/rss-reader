@@ -3,12 +3,13 @@ import { BottomNavigation, Text } from "react-native-paper";
 import Home from "../pages/Home";
 import RSS from "../pages/RSS";
 
-const Naviagtion = () => {
+function Naviagtion() {
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     { key: "Home", title: "Home", focusedIcon: "home", unfocusedIcon: "home-outline" },
     { key: "RSS", title: "RSS", focusedIcon: "rss" },
   ]);
+
 
   const renderScene = BottomNavigation.SceneMap({
     Home: () => <Home />,
@@ -23,6 +24,6 @@ const Naviagtion = () => {
                       sceneAnimationType={"shifting"}
     />
   );
-};
+}
 
 export default Naviagtion;
