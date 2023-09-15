@@ -16,40 +16,7 @@ function AppProvider({ children }) {
       value: MD3LightTheme,
     },
     feeds: {
-      all: [
-        {
-          title: "知乎每日精选",
-          link: "https://www.zhihu.com/rss",
-        },
-        {
-          title: "阮一峰的网络日志",
-          link: "https://www.ruanyifeng.com/blog/atom.xml",
-        },
-        {
-          title: "阮一峰的网络日志",
-          link: "http://feeds.feedburner.com/ruanyifeng",
-        },
-        {
-          title: "少数派",
-          link: "https://sspai.com/feed",
-        },
-        {
-          title: "美团技术团队",
-          link: "https://rsshub.app/meituan/tech/home",
-        },
-        {
-          title: "V2EX",
-          link: "https://v2ex.com/index.xml",
-        },
-        {
-          title: "酷 壳 – CoolShell",
-          link: "http://coolshell.cn/feed",
-        },
-        {
-          title: "爱范儿",
-          link: "https://www.ifanr.com/feed",
-        },
-      ],
+      all: [],
       subscribed: [],
     },
     news: {
@@ -89,9 +56,12 @@ function AppProvider({ children }) {
       }
       setIsReady(true);
 
-      let feedsAll = await (await fetch("http://www.kina0630.xyz:8080/rss-reader/get")).text();
-      if (!feedsAll || !feedsAll.length) return;
+      let feedsAll = await (await fetch("http://www.kina0630.xyz:8080/rss-reader/get", {
+        method: "GET",
+      })).text();
+
       feedsAll = JSON.parse(feedsAll);
+      if (!feedsAll || !feedsAll.length) return;
       feedsAll = [...info.feeds.all, ...feedsAll
         .filter(({ title, link }) => {
           return !info.feeds.all.find(f => f.title === title && f.link === link);

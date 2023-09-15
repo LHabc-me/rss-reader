@@ -1,5 +1,5 @@
 import { Searchbar, Text, Button, Snackbar, TextInput, Dialog, ActivityIndicator } from "react-native-paper";
-import { ScrollView, View } from "react-native";
+import { FlatList, Platform, ScrollView, View } from "react-native";
 import { AppContext } from "../utils/AppContext";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Swipeable } from "react-native-gesture-handler";
@@ -123,7 +123,6 @@ function RSS() {
     title: "",
     link: "",
   });
-  const [maxLoadCount, setMaxLoadCount] = useState(20);
   const feedsView = feeds.all
     .filter(feed => feed.title.includes(searchQuery) || feed.link.includes(searchQuery))
     .map((feed, index) => {
@@ -135,17 +134,28 @@ function RSS() {
               setSnackbarText={setSnackbarText} />
       );
     });
-  const _contentViewScroll = (e) => {
 
-    const offsetY = e.nativeEvent.contentOffset.y; //滑动距离
-    const contentSizeHeight = e.nativeEvent.contentSize.height; //scrollView contentSize高度
-    const oriageScrollHeight = e.nativeEvent.layoutMeasurement.height; //scrollView高度
-
-    if (offsetY + oriageScrollHeight >= contentSizeHeight) {
-      setMaxLoadCount(maxLoadCount + 20);
-    }
-
+  const renderItem = ({ item }) => {
+    return (
+      <Feed feed={item}
+            onSubscribe={onSubscribe}
+            onUnsubscribe={onUnsubscribe}
+            setSnackbarText={setSnackbarText} />
+    );
   };
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    if (searchQuery === "") {
+      setData(feeds.all);
+    } else {
+      setData(feeds.all.filter(feed =>
+        feed.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        feed.link.toLowerCase().includes(searchQuery.toLowerCase())));
+    }
+  }, [searchQuery, feeds.all]);
+
   return (
     <View style={{
       display: "flex",
@@ -159,13 +169,15 @@ function RSS() {
       <Button mode={"text"} onPress={() => setNewFeedDialogVisiable(true)}>
         添加订阅源
       </Button>
-      <ScrollView onMomentumScrollEnd={_contentViewScroll}>
-        {
-          feedsView
-            .slice(0, maxLoadCount)
-        }
-        {maxLoadCount < feedsView.length && <ActivityIndicator animating={true} />}
-      </ScrollView>
+      <FlatList data={data}
+                renderItem={renderItem}
+                initialNumToRender={15}
+                windowSize={15} // 渲染区域高度
+                removeClippedSubviews={Platform.OS === "android"}
+                maxToRenderPerBatch={10}
+                updateCellsBatchingPeriod={50}
+      ></FlatList>
+
       <Dialog visible={newFeedDialogVisiable} onDismiss={() => setNewFeedDialogVisiable(false)}>
         <Dialog.Title>添加订阅源</Dialog.Title>
         <Dialog.Actions>

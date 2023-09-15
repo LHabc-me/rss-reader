@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { RefreshControl, ScrollView, useWindowDimensions, View, Animated } from "react-native";
+import { RefreshControl, ScrollView, useWindowDimensions, View, Animated, FlatList } from "react-native";
 import { ActivityIndicator, Divider, FAB, Searchbar, SegmentedButtons, Switch, Text } from "react-native-paper";
 import { AppContext } from "../utils/AppContext";
 import { parse } from "../utils/RSSParser";
@@ -131,12 +131,14 @@ function Home(props) {
     const works = feeds.subscribed.map(async ({ title, link }) => {
       try {
         const r = await parse(link);
-        newNews.push(...r.items.map(i => {
-          return {
-            ...i,
-            source: title,
-          };
-        }));
+        newNews.push(
+          ...r.items.map((i) => {
+            return {
+              ...i,
+              source: title,
+            };
+          }),
+        );
         setNews(newNews);
       } catch (e) {
         console.log(e);
@@ -153,6 +155,7 @@ function Home(props) {
     }
     reloadNews();
   }, [feeds.subscribed]);
+
   const [rootHeight, setRootHeight] = useState(0);
   const windowHeight = useWindowDimensions().height;
 
@@ -160,92 +163,74 @@ function Home(props) {
   const [detailTitle, setDetailTitle] = useState("");
   const [detailContent, setDetailContent] = useState("");
 
+  const renderItem = ({ item }) => (
+    <NewsButton
+      config={item}
+      style={{
+        marginVertical: 4,
+        marginHorizontal: 10,
+        padding: 10,
+      }}
+      onPress={() => {
+        setDetailTitle(item.title);
+        setDetailContent(item.content ?? item.description);
+        setShowDetail(true);
+      }}
+    />
+  );
+
   return (
     <View style={{ height: "100%" }} onLayout={(e) => setRootHeight(e.nativeEvent.layout.height)}>
-      <EssaySettings searchQuery={searchQuery}
-                     sortRule={sortRule}
-                     filter={filter}
-                     useDarkMode={theme.name === "dark"}
-                     onSearchQueryChange={value => setInfo({ ...info, searchQuery: value })}
-                     onSortRuleChange={value => setInfo({ ...info, sortRule: value })}
-                     onFilterChange={value => setInfo({ ...info, filter: value })}
-                     onUseDarkModeChange={() => {
-                       toggleTheme(theme.name === "dark" ? "light" : "dark");
-                     }}
-                     visible={visible}
-                     hideModal={hideModal} />
+      <EssaySettings
+        searchQuery={searchQuery}
+        sortRule={sortRule}
+        filter={filter}
+        useDarkMode={theme.name === "dark"}
+        onSearchQueryChange={(value) => setInfo({ ...info, searchQuery: value })}
+        onSortRuleChange={(value) => setInfo({ ...info, sortRule: value })}
+        onFilterChange={(value) => setInfo({ ...info, filter: value })}
+        onUseDarkModeChange={() => {
+          toggleTheme(theme.name === "dark" ? "light" : "dark");
+        }}
+        visible={visible}
+        hideModal={hideModal}
+      />
 
-
-      <ScrollView
+      <FlatList
+        data={news.filter((item) => {
+          return (
+            item.title.includes(searchQuery) ||
+            item.description.includes(searchQuery) ||
+            item.categories.map((c) => c.name).join(" ").includes(searchQuery)
+          );
+        })}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => index.toString()}
         refreshControl={
-          <RefreshControl refreshing={refreshing}
-                          onRefresh={() => {
-                            setRefreshing(true);
-                            reloadNews();
-                          }}
-                          colors={[theme.value.colors.primary.toString()]}
-                          color={theme.value.colors.primary} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              reloadNews();
+            }}
+            colors={[theme.value.colors.primary.toString()]}
+            color={theme.value.colors.primary}
+          />
         }
-      >
-        <View style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-        }}>
-          {
-            news.length !== 0 && (
-              news
-                .filter((item) => {
-                  switch (filter) {
-                    case "all":
-                      return true;
-                    case "read":
-                      return info.news.read.includes(item.link);
-                    case "unread":
-                      return !info.news.read.includes(item.link);
-                  }
-                })
-                .filter((item) => {
-                  return item.title.includes(searchQuery) ||
-                    item.description.includes(searchQuery) ||
-                    item.categories.map(c => c.name).join(" ").includes(searchQuery);
-                })
-                .map((details, index) => {
-                    return (
-                      <NewsButton key={index} config={details}
-                                  style={{
-                                    marginVertical: 4,
-                                    marginHorizontal: 10,
-                                    padding: 10,
-                                  }}
-                                  onPress={() => {
-                                    setDetailTitle(details.title);
-                                    setDetailContent(details.content ?? details.description);
-                                    setShowDetail(true);
-                                  }} />
-                    );
-                  },
-                ))
-          }
-        </View>
-        {
+        ListEmptyComponent={() =>
           news.length === 0 && !loading && (
-            <View style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: 20,
-              height: rootHeight ?? windowHeight / 3,
-            }}>
-              <View style={{
-                marginBottom: 20,
-              }}>
-                <Text style={{
-                  textAlign: "center",
-                  fontSize: 20,
-                  fontWeight: "bold",
-                }}>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: 20,
+                height: rootHeight ?? windowHeight / 3,
+              }}
+            >
+              <View style={{ marginBottom: 20 }}>
+                <Text style={{ textAlign: "center", fontSize: 20, fontWeight: "bold" }}>
                   欢迎使用 RSS Reader
                 </Text>
               </View>
@@ -254,23 +239,25 @@ function Home(props) {
             </View>
           )
         }
-        {
+        ListFooterComponent={() =>
           loading && (
-            <View style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: 20,
-              height: rootHeight ?? windowHeight / 3,
-            }}>
-              <ActivityIndicator animating={loading} size={"large"}></ActivityIndicator>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: 20,
+                height: rootHeight ?? windowHeight / 3,
+              }}
+            >
+              <ActivityIndicator animating={loading} size={"large"} />
             </View>
           )
         }
-      </ScrollView>
-      {
-        showDetail &&
+      />
+
+      {showDetail && (
         <View style={{
           height: "100%",
         }}>
@@ -281,9 +268,9 @@ function Home(props) {
                       title={detailTitle}>
           </NewsDetail>
         </View>
-      }
-      {
-        !showDetail &&
+      )}
+
+      {!showDetail && (
         <FAB icon={"cog"}
              style={{
                position: "absolute",
@@ -292,7 +279,8 @@ function Home(props) {
                bottom: 0,
              }}
              onPress={() => setVisible(!visible)}
-        />}
+        />
+      )}
     </View>
   );
 }
