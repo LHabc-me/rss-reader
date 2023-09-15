@@ -256,31 +256,31 @@ function Home(props) {
           )
         }
       />
-
-      {showDetail && (
-        <View style={{
-          height: "100%",
-        }}>
-          <NewsDetail source={{ html: detailContent }}
-                      onBack={() => {
-                        setShowDetail(false);
-                      }}
-                      title={detailTitle}>
-          </NewsDetail>
-        </View>
-      )}
-
-      {!showDetail && (
-        <FAB icon={"cog"}
-             style={{
-               position: "absolute",
-               margin: 16,
-               right: 0,
-               bottom: 0,
-             }}
-             onPress={() => setVisible(!visible)}
-        />
-      )}
+      {
+        showDetail && (
+          <View>
+            <NewsDetail source={{ html: detailContent }}
+                        onBack={() => {
+                          setShowDetail(false);
+                        }}
+                        title={detailTitle}>
+            </NewsDetail>
+          </View>
+        )
+      }
+      {
+        !showDetail && (
+          <FAB icon={"cog"}
+               style={{
+                 position: "absolute",
+                 margin: 16,
+                 right: 0,
+                 bottom: 0,
+               }}
+               onPress={() => setVisible(!visible)}
+          />
+        )
+      }
     </View>
   );
 }

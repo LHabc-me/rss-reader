@@ -21,8 +21,7 @@ function Naviagtion() {
                       onIndexChange={setIndex}
                       renderScene={renderScene}
                       sceneAnimationEnabled
-                      sceneAnimationType={"shifting"}
-    />
+                      sceneAnimationType={"shifting"} />
   );
 }
 

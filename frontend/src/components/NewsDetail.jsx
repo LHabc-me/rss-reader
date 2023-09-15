@@ -38,14 +38,16 @@ function NewsDetail(props) {
         </Text>
       </View>
       <ScrollView>
-        <RenderHTML source={source}
-                    contentWidth={windowWidth}
-                    enableExperimentalBRCollapsing
-                    enableExperimentalGhostLinesPrevention
-                    baseStyle={{
-                      padding: 10,
-                      color: theme.value.colors.inverseSurface,
-                    }} />
+        <View style={{ height: "100%" }}>
+          <RenderHTML source={source}
+                      contentWidth={windowWidth}
+                      enableExperimentalBRCollapsing
+                      enableExperimentalGhostLinesPrevention
+                      baseStyle={{
+                        padding: 10,
+                        color: theme.value.colors.inverseSurface,
+                      }} />
+        </View>
       </ScrollView>
     </View>
   );
