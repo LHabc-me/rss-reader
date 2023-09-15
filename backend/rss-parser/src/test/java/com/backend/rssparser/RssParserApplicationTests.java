@@ -1,6 +1,5 @@
 package com.backend.rssparser;
 
-import com.backend.rssparser.entity.Rss;
 import com.backend.rssparser.mapper.RssCRUD;
 import com.backend.rssparser.utils.CsvParser;
 import com.backend.rssparser.utils.JasyptEncryptorUtils;
@@ -31,7 +30,7 @@ class RssParserApplicationTests {
         List<String[]> list = CsvParser.getCsvDataMethod(multipartFile);
          for (String[] strings : list) {
              System.out.println("title:" + strings[0] + ",url:" + strings[1]);
-             System.out.println(rssCRUD.insert(new Rss(strings[0], strings[1])));
+//             System.out.println(rssCRUD.insert(new Rss(strings[0], strings[1])));
          }
     }
 
@@ -43,5 +42,10 @@ class RssParserApplicationTests {
 //        JasyptEncryptorUtils.decode("0uv3jWIQGxtpMuUyWzYYol1gleswEhTxoDiEjjc+xhaR9owiRUBnJUYl3HBRtG1HylDJLXIyBX/d7KTzcbrSkgj08w+bPV0KFWBglejsBDo=");
 //        JasyptEncryptorUtils.decode("5rOYr7TnxeA3TBaKZBiUsZvykSfoUW82");
 //        JasyptEncryptorUtils.decode("p2Seg+iZDqyUZcrO/xLFoQ==");
+    }
+
+    @Test
+    void test2() {
+        System.out.println(rssCRUD.selectList(null));
     }
 }

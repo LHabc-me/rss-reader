@@ -6,10 +6,10 @@ plugins {
 }
 
 group = 'com.backend'
-version = '0.0.1-SNAPSHOT'
+version = '1.0'
 
 java {
-    sourceCompatibility = '19'
+    sourceCompatibility = '17'
 }
 
 configurations {
@@ -32,7 +32,6 @@ dependencies {
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5' /* 利用jasypt对application.yaml进行加密 */
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-//    runtimeOnly 'org.mysql:mysql'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
