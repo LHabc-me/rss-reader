@@ -1,4 +1,4 @@
-import { Searchbar, Text, Button, Snackbar, TextInput, Dialog } from "react-native-paper";
+import { Searchbar, Text, Button, Snackbar, TextInput, Dialog, ActivityIndicator } from "react-native-paper";
 import { ScrollView, View } from "react-native";
 import { AppContext } from "../utils/AppContext";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -61,17 +61,19 @@ function Feed(props) {
             flex: 4,
           }}
         >
-          {feeds.subscribed.find(
-            ({ title, link }) => title === feed.title && link === feed.link,
-          ) ? (
-            <Button mode={"text"} onPress={() => onUnsubscribe(feed)} style={{ justifyContent: "center", alignItems: "center" }}>
-              取消订阅
-            </Button>
-          ) : (
-            <Button mode={"text"} onPress={() => onSubscribe(feed)} style={{ justifyContent: "center", alignItems: "center" }}>
-              订阅
-            </Button>
-          )}
+          {
+            feeds.subscribed.find(
+              ({ title, link }) => title === feed.title && link === feed.link,
+            ) ? (
+              <Button mode={"text"} onPress={() => onUnsubscribe(feed)} style={{ justifyContent: "center", alignItems: "center" }}>
+                取消订阅
+              </Button>
+            ) : (
+              <Button mode={"text"} onPress={() => onSubscribe(feed)} style={{ justifyContent: "center", alignItems: "center" }}>
+                订阅
+              </Button>
+            )
+          }
         </View>
       </View>
     </Swipeable>
@@ -93,6 +95,7 @@ function RSS() {
 
   const onSubscribe = (feed) => {
     if (feeds.subscribed.find(({ title, link }) => title === feed.title && link === feed.link)) {
+      setSnackbarText("订阅源已存在");
       return;
     }
     setInfo({
@@ -120,6 +123,29 @@ function RSS() {
     title: "",
     link: "",
   });
+  const [maxLoadCount, setMaxLoadCount] = useState(20);
+  const feedsView = feeds.all
+    .filter(feed => feed.title.includes(searchQuery) || feed.link.includes(searchQuery))
+    .map((feed, index) => {
+      return (
+        <Feed key={index}
+              feed={feed}
+              onSubscribe={onSubscribe}
+              onUnsubscribe={onUnsubscribe}
+              setSnackbarText={setSnackbarText} />
+      );
+    });
+  const _contentViewScroll = (e) => {
+
+    const offsetY = e.nativeEvent.contentOffset.y; //滑动距离
+    const contentSizeHeight = e.nativeEvent.contentSize.height; //scrollView contentSize高度
+    const oriageScrollHeight = e.nativeEvent.layoutMeasurement.height; //scrollView高度
+
+    if (offsetY + oriageScrollHeight >= contentSizeHeight) {
+      setMaxLoadCount(maxLoadCount + 20);
+    }
+
+  };
   return (
     <View style={{
       display: "flex",
@@ -130,23 +156,15 @@ function RSS() {
                  onChangeText={onChangeSearch}
                  value={searchQuery}
                  mode={"view"} />
-      <ScrollView>
+      <Button mode={"text"} onPress={() => setNewFeedDialogVisiable(true)}>
+        添加订阅源
+      </Button>
+      <ScrollView onMomentumScrollEnd={_contentViewScroll}>
         {
-          feeds.all
-            .filter(feed => feed.title.includes(searchQuery) || feed.link.includes(searchQuery))
-            .map((feed, index) => {
-              return (
-                <Feed key={index}
-                      feed={feed}
-                      onSubscribe={onSubscribe}
-                      onUnsubscribe={onUnsubscribe}
-                      setSnackbarText={setSnackbarText} />
-              );
-            })
+          feedsView
+            .slice(0, maxLoadCount)
         }
-        <Button mode={"text"} onPress={() => setNewFeedDialogVisiable(true)}>
-          添加订阅源
-        </Button>
+        {maxLoadCount < feedsView.length && <ActivityIndicator animating={true} />}
       </ScrollView>
       <Dialog visible={newFeedDialogVisiable} onDismiss={() => setNewFeedDialogVisiable(false)}>
         <Dialog.Title>添加订阅源</Dialog.Title>

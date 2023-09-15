@@ -79,6 +79,7 @@ function AppProvider({ children }) {
         break;
     }
   };
+  const save = () => AsyncStorage.setItem("info", JSON.stringify(info));
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,17 +89,29 @@ function AppProvider({ children }) {
       }
       setIsReady(true);
 
-      let feedsAll = JSON.parse(await (await fetch("http://www.kina0630.xyz:8080/rss-reader/get")).json());
+      let feedsAll = await (await fetch("http://www.kina0630.xyz:8080/rss-reader/get")).text();
       if (!feedsAll || !feedsAll.length) return;
-      feedsAll = [...info.feeds.all, ...feedsAll.fliter((item) => !info.feeds.all.includes(item))];
-      setInfo({ ...info, feeds: { ...info.feeds, all: feedsAll } });
+      feedsAll = JSON.parse(feedsAll);
+      feedsAll = [...info.feeds.all, ...feedsAll
+        .filter(({ title, link }) => {
+          return !info.feeds.all.find(f => f.title === title && f.link === link);
+        })
+        .map(({ title, link }) => {
+          return {
+            title, link,
+          };
+        })];
+      setInfo(info => {
+        return { ...info, feeds: { ...info.feeds, all: feedsAll } };
+      });
     };
     fetchData();
   }, []);
 
+
   useEffect(() => {
     if (isReady) {
-      AsyncStorage.setItem("info", JSON.stringify(info));
+      save();
     }
   }, [info, isReady]);
 
