@@ -1,7 +1,8 @@
 import RenderHTML from "react-native-render-html";
 import { BackHandler, ScrollView, useWindowDimensions, View } from "react-native";
 import { Button, Text, Appbar } from "react-native-paper";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
+import { AppContext } from "../utils/AppContext";
 
 function NewsDetail(props) {
   const { source, title, onBack } = props;
@@ -16,6 +17,8 @@ function NewsDetail(props) {
       BackHandler.removeEventListener("hardwareBackPress", backHandler);
     };
   }, []);
+  const { info } = useContext(AppContext);
+  const { theme } = info;
   return (
     <View {...props}>
       <View style={{
@@ -35,7 +38,14 @@ function NewsDetail(props) {
         </Text>
       </View>
       <ScrollView>
-        <RenderHTML source={source} contentWidth={windowWidth} baseStyle={{ padding: 10 }} />
+        <RenderHTML source={source}
+                    contentWidth={windowWidth}
+                    enableExperimentalBRCollapsing
+                    enableExperimentalGhostLinesPrevention
+                    baseStyle={{
+                      padding: 10,
+                      color: theme.value.colors.inverseSurface,
+                    }} />
       </ScrollView>
     </View>
   );
